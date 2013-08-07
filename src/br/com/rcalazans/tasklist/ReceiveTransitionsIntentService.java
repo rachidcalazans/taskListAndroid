@@ -52,6 +52,10 @@ public class ReceiveTransitionsIntentService extends IntentService {
 		} else {
 			// Get the type of transition (entry or exit)
 			int transitionType = LocationClient.getGeofenceTransition(intent);
+			
+			Log.e("onHandleIntent",
+					"transitionType: " + transitionType);
+			
 			// Test that a valid transition was reported
 			if ((transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
 					|| (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)) {

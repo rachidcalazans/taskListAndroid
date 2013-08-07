@@ -14,86 +14,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add" 
-        android:onClick="add"/>
+        android:onClick="addGeo"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="lat1" />
-
-    <EditText
-        android:id="@+id/lat1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.56"
-        android:ems="10" >
-
-        <requestFocus />
-    </EditText>
     
-     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="long1" />
-
     <EditText
         android:id="@+id/long1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.56"
         android:ems="10" >
     </EditText>
-    
-     <TextView
+
+    <Button
+        android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="rad1" />
-
-    <EditText
-        android:id="@+id/rad1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.56"
-        android:ems="10" >
-    </EditText>
-    
-     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="lat2" />
-
-    <EditText
-        android:id="@+id/lat2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.56"
-        android:ems="10" >
-    </EditText>
-    
-     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="long2" />
-
-    <EditText
-        android:id="@+id/long2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.56"
-        android:ems="10" >
-    </EditText>
-    
-     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="rad2" />
-
-    <EditText
-        android:id="@+id/rad2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.56"
-        android:ems="10" >
-    </EditText>
+        android:text="Save Atual location" 
+        android:onClick="add"/>
     
 </LinearLayout>

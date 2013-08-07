@@ -26,6 +26,17 @@ public class GeofenceTask implements Serializable{
 		this.mExpirationDuration = mExpirationDuration;
 		this.mTransitionType 	 = mTransitionType;
 	}
+	
+	public GeofenceTask(double mLatitude, double mLongitude,
+			float mRadius, long mExpirationDuration, int mTransitionType) {
+		super();
+
+		this.mLatitude  		 = mLatitude;
+		this.mLongitude 		 = mLongitude;
+		this.mRadius 			 = mRadius;
+		this.mExpirationDuration = mExpirationDuration;
+		this.mTransitionType 	 = mTransitionType;
+	}
 
 	public long getId() {
         return mId;

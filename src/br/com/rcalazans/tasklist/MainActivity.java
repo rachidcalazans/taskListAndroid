@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -17,6 +18,8 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import br.com.rcalazans.tasklist.dao.GeofenceDao;
+import br.com.rcalazans.tasklist.model.GeofenceTask;
 import br.com.rcalazans.tasklist.model.SimpleGeofence;
 import br.com.rcalazans.tasklist.model.SimpleGeofenceStore;
 
@@ -27,7 +30,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListener;
-import com.google.android.gms.location.LocationClient.OnRemoveGeofencesResultListener;
 import com.google.android.gms.location.LocationStatusCodes;
 
 public class MainActivity extends FragmentActivity implements ConnectionCallbacks, 
@@ -50,12 +52,7 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     private static final long GEOFENCE_EXPIRATION_TIME     = GEOFENCE_EXPIRATION_IN_HOURS *
             SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND;
     
-    private EditText mLatitude1;
     private EditText mLongitude1;
-    private EditText mRadius1;
-    private EditText mLatitude2;
-    private EditText mLongitude2;
-    private EditText mRadius2;
     
     private SimpleGeofence mUIGeofence1;
     private SimpleGeofence mUIGeofence2;
@@ -63,6 +60,8 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     List<Geofence> mGeofenceList;
     
     private SimpleGeofenceStore mGeofenceStorage;
+    private GeofenceDao daoGeofence;
+    private GeofenceTask geofenceTask;
     
  // Holds the location client
     private LocationClient mLocationClient;
@@ -82,21 +81,12 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
 		 // Start with the request flag set to false
         mInProgress = false;
 		
-        mLatitude1  = (EditText) findViewById(R.id.lat1);
         mLongitude1 = (EditText) findViewById(R.id.long1);
-        mRadius1    = (EditText) findViewById(R.id.rad1);
         
-        mLatitude2  = (EditText) findViewById(R.id.lat2);
-        mLongitude2 = (EditText) findViewById(R.id.long2);
-        mRadius2    = (EditText) findViewById(R.id.rad2);
+        daoGeofence   = new GeofenceDao(this);
+        Log.d("GEOFENCE_DAO", "size list: "+daoGeofence.listGeofenceTasks().size());
+        mGeofenceList = new ArrayList<Geofence>();
         
-		if (servicesConnected()) {
-			// Instantiate a new geofence storage area
-			mGeofenceStorage = new SimpleGeofenceStore(this);
-
-	        // Instantiate the current List of geofences
-			mGeofenceList = new ArrayList<Geofence>();
-		}
 	}
 
 	@Override
@@ -135,90 +125,6 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         }
 	}
 	
-	private boolean servicesConnected() {
-        // Check that Google Play services is available
-        int resultCode =
-                GooglePlayServicesUtil.
-                        isGooglePlayServicesAvailable(this);
-        // If Google Play services is available
-        if (ConnectionResult.SUCCESS == resultCode) {
-            // In debug mode, log the status
-            Log.d("Geofence Detection",
-                    "Google Play services is available.");
-            // Continue
-            return true;
-        // Google Play services was not available for some reason
-        } else {
-        	Log.d("Error_Google_Service", GooglePlayServicesUtil.getErrorString(resultCode));
-        	return false;
-        }
-    }
-	
-	/**
-     * Get the geofence parameters for each geofence from the UI
-     * and add them to a List.
-     */
-    public void createGeofences() {
-    	Log.d("createGeofences", "ENTRANDO CREATE_GEO");
-    	LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		Location location = lm
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		double mLongitude = location.getLongitude();
-		double mLatitude = location.getLatitude();
-		float mRadius = 1;
-		
-		Log.d("createGeofences", "DEPOIS DE PEGAR LOCATIONS");
-		
-//		Toast.makeText(this,
-//				"Longitude " + mLongitude + " - Latitude " + mLatitude,
-//				Toast.LENGTH_SHORT).show();
-
-		Log.d("Locations LAT", "Longitude " + mLongitude + " - Latitude " + mLatitude);
-		
-		 mUIGeofence1 = new SimpleGeofence(
-	                "1",
-	                mLongitude,
-	                mLatitude,
-	                mRadius,
-	                Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER
-					| Geofence.GEOFENCE_TRANSITION_EXIT);
-		
-    	/*
-         * Create an internal object to store the data. Set its
-         * ID to "1". This is a "flattened" object that contains
-         * a set of strings
-         */
-//        mUIGeofence1 = new SimpleGeofence(
-//                "1",
-//                Double.valueOf(mLatitude1.getText().toString()),
-//                Double.valueOf(mLongitude1.getText().toString()),
-//                Float.valueOf(mRadius1.getText().toString()),
-//                GEOFENCE_EXPIRATION_TIME,
-//                // This geofence records only entry transitions
-//                Geofence.GEOFENCE_TRANSITION_ENTER);
-        // Store this flat version
-        mGeofenceStorage.setGeofence("1", mUIGeofence1);
-        
-        // Create another internal object. Set its ID to "2"
-//        mUIGeofence2 = new SimpleGeofence(
-//                "2",
-//                Double.valueOf(mLatitude2.getText().toString()),
-//                Double.valueOf(mLongitude2.getText().toString()),
-//                Float.valueOf(mRadius2.getText().toString()),
-//                GEOFENCE_EXPIRATION_TIME,
-//                // This geofence records both entry and exit transitions
-//                Geofence.GEOFENCE_TRANSITION_ENTER |
-//                Geofence.GEOFENCE_TRANSITION_EXIT);
-        
-        Log.d("createGeofences", "Antes de add no list");
-        // Store this flat version
-//        mGeofenceStorage.setGeofence("2", mUIGeofence2);
-        mGeofenceList.add(mUIGeofence1.toGeofence());
-//        mGeofenceList.add(mUIGeofence2.toGeofence());
-//        addGeofences();
-        Log.d("createGeofences", "Depois de add no list");
-    }
-    
     /*
      * Create a PendingIntent that triggers an IntentService in your
      * app when a geofence transition occurs.
@@ -394,4 +300,72 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     	Log.d("ADD", "Antes Add_GEOFENCE");
     	addGeofences();
     }
+    
+    public void addGeo(View v) {
+    	Toast.makeText(this, "Add GEO",
+    			Toast.LENGTH_SHORT).show();
+    	
+		List<GeofenceTask> list = daoGeofence.listGeofenceTasks();
+		
+		for (GeofenceTask g : list) {
+			mGeofenceList.add(g.toGeofence());
+		}
+
+		
+    	
+    	addGeofences();
+    }
+    
+    public void createGeofences() {
+    	LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Location location = lm
+				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		
+		double mLongitude = location.getLongitude();
+		double mLatitude = location.getLatitude();
+		float mRadius = 1;
+		
+		Log.d("Locations LAT", "Longitude " + mLongitude + " - Latitude " + mLatitude);
+		
+		geofenceTask = new GeofenceTask(mLatitude, mLongitude, mRadius, 
+				Geofence.NEVER_EXPIRE, 
+				Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+		
+		daoGeofence.inserirAlterar(geofenceTask);
+
+		mGeofenceList.add(geofenceTask.toGeofence());
+    }
+    
+    /**
+     * Checa o status do GooglePlayService
+     * @return true. Caso esteja dispon’vel
+     */
+    private boolean servicesConnected() {
+        // Check that Google Play services is available
+        int resultCode =
+                GooglePlayServicesUtil.
+                        isGooglePlayServicesAvailable(this);
+        // If Google Play services is available
+        if (ConnectionResult.SUCCESS == resultCode) {
+            // In debug mode, log the status
+            Log.d("Geofence Detection",
+                    "Google Play services is available.");
+            // Continue
+            return true;
+        // Google Play services was not available for some reason
+        } else {
+        	Log.d("Error_Google_Service", GooglePlayServicesUtil.getErrorString(resultCode));
+        	return false;
+        }
+    }
+    
+    public class ResponseReceiver extends BroadcastReceiver {
+		public static final String ACTION_RESP = "A";
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Toast.makeText(context, "COCK SLAM - received response",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
 }
