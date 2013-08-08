@@ -3,6 +3,9 @@
 
     <string name="app_name">TaskList</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="description">Description</string>
+    <string name="notes">Notes</string>
+    <string name="alert">Alert</string>
+    <string name="address">Address</string>
 
 </resources>

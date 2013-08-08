@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DbHelper extends SQLiteOpenHelper{
 
 	public DbHelper(Context context) {
-		super(context, "dbTasks", null, 2);
+		super(context, "dbTasks", null, 3);
 	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("create table tasks (_id integer primary key autoincrement, geofence_task_id integer, description text, alert integer, status integer);");
+		db.execSQL("create table tasks (_id integer primary key autoincrement, geofence_task_id integer, description text, notes text, alert integer, status integer);");
 		db.execSQL("create table geofence_tasks (_id integer primary key autoincrement, latitude real, longitude real, radius real, expiration_duration real, transition_type integer);");
 		
 	}
@@ -21,7 +21,8 @@ public class DbHelper extends SQLiteOpenHelper{
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		switch (oldVersion) {
 		case 1:
-			db.execSQL("drop table tasks; drop table geofence_tasks;");
+			db.execSQL("drop table tasks;");
+			db.execSQL("drop table geofence_tasks;");
 			onCreate(db);
 		}		
 	}

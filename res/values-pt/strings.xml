@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TaskList</string>
+    <string name="action_settings">Configurações</string>
+    <string name="description">Descrição</string>
+    <string name="notes">Observação</string>
+    <string name="alert">Alertar</string>
+    <string name="address">Endereço</string>
+
+</resources>

@@ -12,17 +12,26 @@ import android.content.IntentSender.SendIntentException;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 import br.com.rcalazans.tasklist.dao.GeofenceDao;
+import br.com.rcalazans.tasklist.dao.TaskDao;
+import br.com.rcalazans.tasklist.fragment.ListTasksFragment;
+import br.com.rcalazans.tasklist.fragment.ListTasksFragment.TaskSelectListener;
 import br.com.rcalazans.tasklist.model.GeofenceTask;
 import br.com.rcalazans.tasklist.model.SimpleGeofence;
 import br.com.rcalazans.tasklist.model.SimpleGeofenceStore;
+import br.com.rcalazans.tasklist.model.Task;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.ActionBar.TabListener;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -32,14 +41,9 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListener;
 import com.google.android.gms.location.LocationStatusCodes;
 
-public class MainActivity extends FragmentActivity implements ConnectionCallbacks, 
-		OnConnectionFailedListener, OnAddGeofencesResultListener {
+public class MainActivity extends SherlockFragmentActivity implements ConnectionCallbacks, 
+		OnConnectionFailedListener, OnAddGeofencesResultListener, TaskSelectListener, TabListener {
 
-	 // Global constants
-    /*
-     * Define a request code to send to Google Play services
-     * This code is returned in Activity.onActivityResult
-     */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
     /*
@@ -53,6 +57,8 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
             SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND;
     
     private EditText mLongitude1;
+    
+    FrameLayout rootDetalhe = null;
     
     private SimpleGeofence mUIGeofence1;
     private SimpleGeofence mUIGeofence2;
@@ -73,27 +79,95 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     // Flag that indicates if a request is underway.
     private boolean mInProgress;
     
+    
+    ListTasksFragment listCompleted;
+    ListTasksFragment listUnCompleted;
+    
+    private TaskDao daoTask;
+    
+    private void createTasks() {
+    	Task task  = new Task(1, "Comprar p‹o", "", 0, 0);
+    	Task task2 = new Task(1, "Comprar queijo", "", 0, 1);
+    	
+    	daoTask.inserirAlterar(task);
+    	daoTask.inserirAlterar(task2);
+    }
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTheme(R.style.Theme_Sherlock_Light_DarkActionBar);
 		setContentView(R.layout.activity_main);
+		
+		daoGeofence = new GeofenceDao(this);
+        daoTask     = new TaskDao(this);
+		
+        //createTasks();
+        
+        Log.d("DAO_TASK", "size list: "+daoTask.listTasks().size());
+        
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		
+		listUnCompleted = (ListTasksFragment) getSupportFragmentManager().findFragmentByTag("listUnCompleted");
+
+		if (listUnCompleted == null) {
+			listUnCompleted = ListTasksFragment.createNewInstance(0);
+			fragmentTransaction = fragmentTransaction.add(R.id.lista, listUnCompleted, "listUnCompleted").hide(listUnCompleted);
+		}
+		
+		listCompleted = (ListTasksFragment) getSupportFragmentManager().findFragmentByTag("listCompleted");
+		
+		if (listCompleted == null) {
+			listCompleted = ListTasksFragment.createNewInstance(1);
+			fragmentTransaction = fragmentTransaction.add(R.id.lista, listCompleted, "listCompleted").hide(listCompleted);
+		}
+		
+		listUnCompleted.setListener(this);
+		listCompleted.setListener(this);
+		
+		fragmentTransaction.commit();
+		
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+		Tab aba1 = actionBar.newTab();
+		aba1.setText("UnCompleted");
+		aba1.setTabListener(this);
+		actionBar.addTab(aba1);
+
+		Tab aba2 = actionBar.newTab();
+		aba2.setText("Completed");
+		aba2.setTabListener(this);
+		actionBar.addTab(aba2);
 		
 		 // Start with the request flag set to false
         mInProgress = false;
-		
-        mLongitude1 = (EditText) findViewById(R.id.long1);
         
-        daoGeofence   = new GeofenceDao(this);
         Log.d("GEOFENCE_DAO", "size list: "+daoGeofence.listGeofenceTasks().size());
         mGeofenceList = new ArrayList<Geofence>();
         
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+	public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.tasks, menu);
 		return true;
+	}
+	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		Log.d("MENU_SELECT",
+                "icon clicked");
+		if (item.getItemId() == R.id.action_novo) {
+			//onCarroClick(null);
+			Log.d("MENU_SELECT",
+	                "Action novo");
+		}
+		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private boolean isTablet() {
+		return rootDetalhe != null;
 	}
 	
 	@Override
@@ -368,4 +442,35 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
 					Toast.LENGTH_SHORT).show();
 		}
 	}
+
+	@Override
+	public void onClick(Task task) {
+		Log.d("onClick_TASK", "Clikado");
+//			Intent it = new Intent(this, CarroActivity.class);
+//			it.putExtra("task", task);
+//			startActivityForResult(it, 1);
+		
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		ft = ft.hide(listUnCompleted).hide(listCompleted);
+		switch (tab.getPosition()) {
+		case 0:
+			ft.show(listUnCompleted);
+			break;
+		case 1:
+			ft.show(listCompleted);
+			break;
+		}		
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+	}
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+	}
+	
 }

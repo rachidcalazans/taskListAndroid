@@ -33,6 +33,7 @@ public class TaskDao {
 		
 		cv.put("geofence_task_id", task.getGeofenceTaskId());
 		cv.put("description",	   task.getDescription());
+		cv.put("notes",    		   task.getNotes());
 		cv.put("alert", 		   task.getAlert());
 		cv.put("status", 		   task.getStatus());
 
@@ -45,21 +46,22 @@ public class TaskDao {
 		db.close();
 	}
 
-	public List<Task> listTasks() {
+	public List<Task> listTasksByStatus(int taskStatus) {
 		ArrayList<Task> tasks = new ArrayList<Task>();
 
 		SQLiteDatabase db = helper.getReadableDatabase();
-		Cursor cursor = db.rawQuery("select * from tasks", null);
+		Cursor cursor = db.rawQuery("select * from tasks where status = " + taskStatus, null);
 
 		while (cursor.moveToNext()) {
 			
 			long   id 			  = cursor.getLong(cursor.getColumnIndex("_id"));
 			long   geofenceTaskId = cursor.getLong(cursor.getColumnIndex("geofence_task_id"));
 			String description    = cursor.getString(cursor.getColumnIndex("description"));
+			String notes		  = cursor.getString(cursor.getColumnIndex("notes"));
 			int    alert 		  = cursor.getInt(cursor.getColumnIndex("alert"));
 			int    status 		  = cursor.getInt(cursor.getColumnIndex("status"));
 			
-			Task task = new Task(id, geofenceTaskId, description, alert, status);
+			Task task = new Task(id, geofenceTaskId, description, notes, alert, status);
 
 			tasks.add(task);
 		}
@@ -67,6 +69,32 @@ public class TaskDao {
 		cursor.close();
 		db.close();
 
+		return tasks;
+	}
+	
+	public List<Task> listTasks() {
+		ArrayList<Task> tasks = new ArrayList<Task>();
+		
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor cursor = db.rawQuery("select * from tasks", null);
+		
+		while (cursor.moveToNext()) {
+			
+			long   id 			  = cursor.getLong(cursor.getColumnIndex("_id"));
+			long   geofenceTaskId = cursor.getLong(cursor.getColumnIndex("geofence_task_id"));
+			String description    = cursor.getString(cursor.getColumnIndex("description"));
+			String notes		  = cursor.getString(cursor.getColumnIndex("notes"));
+			int    alert 		  = cursor.getInt(cursor.getColumnIndex("alert"));
+			int    status 		  = cursor.getInt(cursor.getColumnIndex("status"));
+			
+			Task task = new Task(id, geofenceTaskId, description, notes, alert, status);
+			
+			tasks.add(task);
+		}
+		
+		cursor.close();
+		db.close();
+		
 		return tasks;
 	}
 }
