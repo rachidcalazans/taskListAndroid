@@ -34,6 +34,7 @@ public class TaskDao {
 		cv.put("geofence_task_id", task.getGeofenceTaskId());
 		cv.put("description",	   task.getDescription());
 		cv.put("notes",    		   task.getNotes());
+		cv.put("address",  		   task.getAddress());
 		cv.put("alert", 		   task.getAlert());
 		cv.put("status", 		   task.getStatus());
 
@@ -50,7 +51,7 @@ public class TaskDao {
 		ArrayList<Task> tasks = new ArrayList<Task>();
 
 		SQLiteDatabase db = helper.getReadableDatabase();
-		Cursor cursor = db.rawQuery("select * from tasks where status = " + taskStatus, null);
+		Cursor cursor = db.rawQuery("select * from tasks where status = " + taskStatus + " order by description", null);
 
 		while (cursor.moveToNext()) {
 			
@@ -58,10 +59,11 @@ public class TaskDao {
 			long   geofenceTaskId = cursor.getLong(cursor.getColumnIndex("geofence_task_id"));
 			String description    = cursor.getString(cursor.getColumnIndex("description"));
 			String notes		  = cursor.getString(cursor.getColumnIndex("notes"));
+			String address		  = cursor.getString(cursor.getColumnIndex("address"));
 			int    alert 		  = cursor.getInt(cursor.getColumnIndex("alert"));
 			int    status 		  = cursor.getInt(cursor.getColumnIndex("status"));
 			
-			Task task = new Task(id, geofenceTaskId, description, notes, alert, status);
+			Task task = new Task(id, geofenceTaskId, description, notes, address, alert, status);
 
 			tasks.add(task);
 		}
@@ -84,10 +86,11 @@ public class TaskDao {
 			long   geofenceTaskId = cursor.getLong(cursor.getColumnIndex("geofence_task_id"));
 			String description    = cursor.getString(cursor.getColumnIndex("description"));
 			String notes		  = cursor.getString(cursor.getColumnIndex("notes"));
+			String address		  = cursor.getString(cursor.getColumnIndex("address"));
 			int    alert 		  = cursor.getInt(cursor.getColumnIndex("alert"));
 			int    status 		  = cursor.getInt(cursor.getColumnIndex("status"));
 			
-			Task task = new Task(id, geofenceTaskId, description, notes, alert, status);
+			Task task = new Task(id, geofenceTaskId, description, notes, address, alert, status);
 			
 			tasks.add(task);
 		}

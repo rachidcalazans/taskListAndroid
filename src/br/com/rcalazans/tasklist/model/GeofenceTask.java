@@ -14,6 +14,11 @@ public class GeofenceTask implements Serializable{
     private float  mRadius;
     private long   mExpirationDuration;
     private int    mTransitionType;
+    private String mFormattedAdrress;
+    
+    public GeofenceTask() {
+    	super();
+    }
     
 	public GeofenceTask(long mId, double mLatitude, double mLongitude,
 			float mRadius, long mExpirationDuration, int mTransitionType) {
@@ -87,7 +92,15 @@ public class GeofenceTask implements Serializable{
 		this.mTransitionType = mTransitionType;
 	}
     
-    /**
+    public String getFormattedAdrress() {
+		return mFormattedAdrress;
+	}
+
+	public void setFormattedAdrress(String mFormattedAdrress) {
+		this.mFormattedAdrress = mFormattedAdrress;
+	}
+
+	/**
      * Creates a Location Services Geofence object from a
      * SimpleGeofence.
      *

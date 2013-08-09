@@ -1108,18 +1108,21 @@ containing a value of this type.
         public static final int abs__textButton=0x7f040017;
         public static final int abs__title=0x7f04001f;
         public static final int abs__up=0x7f04000b;
-        public static final int action_cancelar=0x7f040041;
-        public static final int action_deletar=0x7f040040;
-        public static final int action_novo=0x7f040043;
-        public static final int action_salvar=0x7f04003f;
-        public static final int action_settings=0x7f040042;
-        public static final int checkAlert=0x7f04003a;
+        public static final int action_cancelar=0x7f040045;
+        public static final int action_deletar=0x7f040044;
+        public static final int action_novo=0x7f040047;
+        public static final int action_salvar=0x7f040043;
+        public static final int action_settings=0x7f040046;
+        public static final int btCurrentLocation=0x7f04003f;
+        public static final int btSearchAddress=0x7f04003e;
+        public static final int checkAlert=0x7f04003b;
+        public static final int checkStatus=0x7f040038;
         public static final int detail=0x7f040036;
         public static final int disableHome=0x7f040009;
         public static final int edit_query=0x7f04002a;
-        public static final int edtAddress=0x7f04003c;
-        public static final int edtDescription=0x7f040039;
-        public static final int edtNotes=0x7f04003d;
+        public static final int edtAddress=0x7f04003d;
+        public static final int edtDescription=0x7f04003a;
+        public static final int edtNotes=0x7f040041;
         public static final int homeAsUp=0x7f040006;
         public static final int hybrid=0x7f040013;
         public static final int listMode=0x7f040002;
@@ -1132,9 +1135,10 @@ containing a value of this type.
         public static final int showTitle=0x7f040007;
         public static final int tabMode=0x7f040003;
         public static final int terrain=0x7f040012;
-        public static final int textView1=0x7f040038;
-        public static final int textView3=0x7f04003b;
-        public static final int txtTaskDescription=0x7f04003e;
+        public static final int textView1=0x7f040039;
+        public static final int textView3=0x7f04003c;
+        public static final int textView4=0x7f040040;
+        public static final int txtTaskDescription=0x7f040042;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }
@@ -1217,8 +1221,11 @@ containing a value of this type.
          */
         public static final int abs__shareactionprovider_share_with_application=0x7f090007;
         public static final int action_settings=0x7f090023;
-        public static final int address=0x7f090027;
-        public static final int alert=0x7f090026;
+        public static final int address=0x7f09002e;
+        public static final int address_found=0x7f090035;
+        public static final int address_not_found=0x7f090034;
+        public static final int address_require=0x7f090032;
+        public static final int alert=0x7f09002d;
         public static final int app_name=0x7f090022;
         /**   Title for notification shown when GooglePlayServices needs to be
         enabled for a application to work. [CHAR LIMIT=70] 
@@ -1243,6 +1250,12 @@ containing a value of this type.
         [CHAR LIMIT=70] 
          */
         public static final int auth_client_using_bad_version_title=0x7f09001c;
+        public static final int bt_cancel=0x7f090025;
+        public static final int bt_current_location=0x7f090028;
+        public static final int bt_delete=0x7f090027;
+        public static final int bt_new=0x7f090024;
+        public static final int bt_save=0x7f090026;
+        public static final int bt_search_address=0x7f090029;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
         can enable it [CHAR LIMIT=40] 
@@ -1298,8 +1311,15 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f09001b;
-        public static final int description=0x7f090024;
-        public static final int notes=0x7f090025;
+        public static final int completed=0x7f090030;
+        public static final int description=0x7f09002b;
+        public static final int description_require=0x7f090031;
+        public static final int internet_failure=0x7f090033;
+        public static final int notes=0x7f09002c;
+        public static final int searhing_address=0x7f090036;
+        public static final int searhing_current_location=0x7f090037;
+        public static final int status=0x7f09002a;
+        public static final int uncompleted=0x7f09002f;
     }
     public static final class style {
         /** 

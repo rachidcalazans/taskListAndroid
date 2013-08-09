@@ -5,6 +5,6 @@
         android:icon="@android:drawable/ic_menu_add"
         android:orderInCategory="100"
         android:showAsAction="always|withText"
-        android:title="Novo"/>
+        android:title="@string/bt_new"/>
 
 </menu>

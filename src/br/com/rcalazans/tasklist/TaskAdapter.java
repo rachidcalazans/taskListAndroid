@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import br.com.rcalazans.tasklist.model.Task;
 
@@ -58,12 +57,12 @@ public class TaskAdapter extends BaseAdapter{
 		holder.txtTaskDescription.setText(task.getDescription());
 		
 		if (task.getStatus() == 1) {
-			convertView.setBackgroundColor(0xff00ff00);
-//			holder.txtTaskDescription.setTextColor(0xff00ff00);
+//			convertView.setBackgroundColor(0xff00ff00);
+			holder.txtTaskDescription.setTextColor(0xff00ff00);
 			
 //			holder.checkStatus.setChecked(true);			
 		} else {
-			convertView.setBackgroundColor(0xffffffff);
+//			convertView.setBackgroundColor(0xffffffff);
 //			holder.txtTaskDescription.setTextColor(0xffffffff);
 //			holder.checkStatus.setChecked(false);
 		}

@@ -5,18 +5,18 @@
         android:icon="@android:drawable/ic_menu_save"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="Salvar"/>
+        android:title="@string/bt_save"/>
     <item
         android:id="@+id/action_deletar"
         android:icon="@android:drawable/ic_menu_delete"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="Deletar"/>
+        android:title="@string/bt_delete"/>
     <item
         android:id="@+id/action_cancelar"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="Cancelar"/>
+        android:title="@string/bt_cancel"/>
 
 </menu>

@@ -22,6 +22,8 @@ import br.com.rcalazans.tasklist.dao.GeofenceDao;
 import br.com.rcalazans.tasklist.dao.TaskDao;
 import br.com.rcalazans.tasklist.fragment.ListTasksFragment;
 import br.com.rcalazans.tasklist.fragment.ListTasksFragment.TaskSelectListener;
+import br.com.rcalazans.tasklist.fragment.TaskFragment;
+import br.com.rcalazans.tasklist.fragment.TaskFragment.DetailTaskListerner;
 import br.com.rcalazans.tasklist.model.GeofenceTask;
 import br.com.rcalazans.tasklist.model.SimpleGeofence;
 import br.com.rcalazans.tasklist.model.SimpleGeofenceStore;
@@ -42,7 +44,8 @@ import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListen
 import com.google.android.gms.location.LocationStatusCodes;
 
 public class MainActivity extends SherlockFragmentActivity implements ConnectionCallbacks, 
-		OnConnectionFailedListener, OnAddGeofencesResultListener, TaskSelectListener, TabListener {
+		OnConnectionFailedListener, OnAddGeofencesResultListener, TaskSelectListener, TabListener,
+		DetailTaskListerner{
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
@@ -86,8 +89,8 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
     private TaskDao daoTask;
     
     private void createTasks() {
-    	Task task  = new Task(1, "Comprar p‹o", "", 0, 0);
-    	Task task2 = new Task(1, "Comprar queijo", "", 0, 1);
+    	Task task  = new Task(1, "Comprar p‹o", "", "rua jose carneiro da cunha", 0, 0);
+    	Task task2 = new Task(1, "Comprar queijo", "", "rua jose carneiro", 0, 1);
     	
     	daoTask.inserirAlterar(task);
     	daoTask.inserirAlterar(task2);
@@ -122,6 +125,8 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 			fragmentTransaction = fragmentTransaction.add(R.id.lista, listCompleted, "listCompleted").hide(listCompleted);
 		}
 		
+		rootDetalhe = (FrameLayout) findViewById(R.id.detail);
+		
 		listUnCompleted.setListener(this);
 		listCompleted.setListener(this);
 		
@@ -131,12 +136,12 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 		Tab aba1 = actionBar.newTab();
-		aba1.setText("UnCompleted");
+		aba1.setText(R.string.uncompleted);
 		aba1.setTabListener(this);
 		actionBar.addTab(aba1);
 
 		Tab aba2 = actionBar.newTab();
-		aba2.setText("Completed");
+		aba2.setText(R.string.completed);
 		aba2.setTabListener(this);
 		actionBar.addTab(aba2);
 		
@@ -156,12 +161,8 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		Log.d("MENU_SELECT",
-                "icon clicked");
 		if (item.getItemId() == R.id.action_novo) {
-			//onCarroClick(null);
-			Log.d("MENU_SELECT",
-	                "Action novo");
+			onClick(null);
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -174,11 +175,9 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
 		
-		Log.d("MainActResult",
-                "Entrou onActivityResult");
-		Log.d("RequestCode",
-                ""+requestCode);
-		  // Decide what to do based on the original request code
+		Log.d("MainActResult", "Entrou onActivityResult");
+
+		// Decide what to do based on the original request code
         switch (requestCode) {
             
             case CONNECTION_FAILURE_RESOLUTION_REQUEST :
@@ -195,7 +194,14 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
             
                     break;
                 }
-            
+                
+            case 1:
+            	
+            	if (resultCode == Activity.RESULT_OK) {
+            		listCompleted.refreshListTasks(1);
+            		listUnCompleted.refreshListTasks(0);
+            	}
+                
         }
 	}
 	
@@ -443,12 +449,22 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		}
 	}
 
+    // Click no item da lista
 	@Override
 	public void onClick(Task task) {
-		Log.d("onClick_TASK", "Clikado");
-//			Intent it = new Intent(this, CarroActivity.class);
-//			it.putExtra("task", task);
-//			startActivityForResult(it, 1);
+		
+		if (isTablet()) {
+			TaskFragment fragment = TaskFragment.createNewInstance(task);
+			fragment.setListener(this);
+
+			getSupportFragmentManager().beginTransaction().replace(R.id.detail, fragment, "detail").commit();
+		} else {
+			Intent it = new Intent(this, TaskActivity.class);
+			it.putExtra("task", task);
+			startActivityForResult(it, 1);
+		}
+		
+			
 		
 	}
 
@@ -472,5 +488,24 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
-	
+
+	@Override
+	public void onCancelClick() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSaveClick() {
+		listCompleted.refreshListTasks(1);
+		listUnCompleted.refreshListTasks(0);
+		
+	}
+
+	@Override
+	public void onDeleteClick() {
+		listCompleted.refreshListTasks(1);
+		listUnCompleted.refreshListTasks(0);
+	}
+
 }

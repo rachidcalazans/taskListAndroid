@@ -3,9 +3,25 @@
 
     <string name="app_name">TaskList</string>
     <string name="action_settings">Settings</string>
+    <string name="bt_new">New</string>
+    <string name="bt_cancel">Cancel</string>
+    <string name="bt_save">Save</string>
+    <string name="bt_delete">Delete</string>
+    <string name="bt_current_location">Current Location</string>
+    <string name="bt_search_address">Search address</string>
+    <string name="status">Done</string>
     <string name="description">Description</string>
     <string name="notes">Notes</string>
     <string name="alert">Alert</string>
     <string name="address">Address</string>
+    <string name="uncompleted">UnDones</string>
+    <string name="completed">Dones</string>
+    <string name="description_require">Description require</string>
+    <string name="address_require">Address require</string>
+    <string name="internet_failure">Internet connection failure</string>
+    <string name="address_not_found">Address not found</string>
+    <string name="address_found">Success address found</string>
+    <string name="searhing_address">Searching address...</string>
+    <string name="searhing_current_location">Searching current location...</string>
 
 </resources>
