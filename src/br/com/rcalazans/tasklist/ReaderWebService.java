@@ -29,46 +29,52 @@ public abstract class ReaderWebService  extends AsyncTask<String, Void, Geofence
 			
 			String json = urlToStr(params[0]);
 			
+			Log.d("rachid", "Json: "+json);
+			
 			JSONObject jsonObject 	   = new JSONObject(json);
-			JSONArray  jsonResults     = jsonObject.getJSONArray("results");
-			JSONObject jsonObjectFirst = jsonResults.getJSONObject(0);
-//			JSONObject jsonAddress     = jsonObjectFirst.getJSONObject("formatted_address");
-			JSONObject jsonGeometry    = jsonObjectFirst.getJSONObject("geometry");
-			JSONObject jsonLocation    = jsonGeometry.getJSONObject("location");
 			
-			
-			
-			try {
-				float radius = 1;
-				double lat   = jsonLocation.getDouble("lat");
-				double lng   = jsonLocation.getDouble("lng");
+			if (jsonObject.getString("status").equals("OK")) {
+				Log.d("rachid", "Status OK ");
 				
-				if (geofenceTaskId == 0) {
-					geofenceTask = new GeofenceTask(lat, lng, radius, 
-							Geofence.NEVER_EXPIRE, 
-							Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
-				} else {
-					geofenceTask = new GeofenceTask(geofenceTaskId ,lat, lng, radius, 
-							Geofence.NEVER_EXPIRE, 
-							Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+				JSONArray  jsonResults     = jsonObject.getJSONArray("results");
+				JSONObject jsonObjectFirst = jsonResults.getJSONObject(0);
+//				JSONObject jsonAddress     = jsonObjectFirst.getJSONObject("formatted_address");
+				JSONObject jsonGeometry    = jsonObjectFirst.getJSONObject("geometry");
+				JSONObject jsonLocation    = jsonGeometry.getJSONObject("location");
+				
+				
+				
+				try {
+					float radius = 100;
+					double lat   = jsonLocation.getDouble("lat");
+					double lng   = jsonLocation.getDouble("lng");
+					
+					if (geofenceTaskId == 0) {
+						geofenceTask = new GeofenceTask(lat, lng, radius, 
+								Geofence.NEVER_EXPIRE, 
+								Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+					} else {
+						geofenceTask = new GeofenceTask(geofenceTaskId ,lat, lng, radius, 
+								Geofence.NEVER_EXPIRE, 
+								Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+					}
+					
+					geofenceTask.setFormattedAdrress(jsonObjectFirst.getString("formatted_address"));
+					
+					
+					
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-				
-				geofenceTask.setFormattedAdrress(jsonObjectFirst.getString("formatted_address"));
-				
-				
-				
-			} catch (JSONException e) {
-				
-				e.printStackTrace();
+			} else {
+				Log.d("rachid", "Status NO_RESULTS ");
 				return null;
 			}
 			
 		} catch (JSONException e1) {
 			e1.printStackTrace();
-			return null;
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			return null;
 		}
 
 		return geofenceTask;

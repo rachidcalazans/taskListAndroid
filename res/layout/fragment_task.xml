@@ -1,85 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <CheckBox
+            android:id="@+id/checkStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:text="@string/status" />
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description" />
+
+        <EditText
+            android:id="@+id/edtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text" >
+
+        </EditText>
+
+        <CheckBox
+            android:id="@+id/checkAlert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:text="@string/alert" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/address" />
+
+        <EditText
+            android:id="@+id/edtAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
-            <CheckBox
-		        android:id="@+id/checkStatus"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:ems="10" 
-		        android:text="@string/status" />
-            
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/btSearchAddress"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/description" />
+                android:layout_weight="1"
+                android:text="@string/bt_search_address" />
 
-		    <EditText
-		        android:id="@+id/edtDescription"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:ems="10" >
-		
-		        <requestFocus />
-		    </EditText>
-		
-		    <CheckBox
-		        android:id="@+id/checkAlert"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:ems="10" 
-		        android:text="@string/alert" />
-		
-		    <TextView
-		        android:id="@+id/textView3"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/address" />
-		
-		    <EditText
-		        android:id="@+id/edtAddress"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:ems="10"/>
-
-		    <Button
-		        android:id="@+id/btSearchAddress"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/bt_search_address" />
-		    
-		    <Button
-		        android:id="@+id/btCurrentLocation"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/bt_current_location" />
-		    
-		    <TextView
-		        android:id="@+id/textView4"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/notes" />
-		
-		    <EditText
-		        android:id="@+id/edtNotes"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:ems="10"/>
-
-            
+            <Button
+                android:id="@+id/btCurrentLocation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/bt_current_location" />
         </LinearLayout>
-    </ScrollView>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notes" />
+
+        <EditText
+            android:id="@+id/edtNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textLongMessage" />
+    </LinearLayout>
+
+</ScrollView>

@@ -10,18 +10,33 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class TaskActivity extends SherlockFragmentActivity implements DetailTaskListerner{
 	
+	private TaskFragment fragment;
+	private Task task; 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_detail);
 
-		Task task = (Task) getIntent().getSerializableExtra("task");
-
-		TaskFragment fragment = TaskFragment.createNewInstance(task);
+		if (savedInstanceState != null && savedInstanceState.containsKey("task")) {
+			task = (Task) savedInstanceState.getSerializable("task");
+		} else if (getIntent().hasExtra("task")) {
+			task = (Task) getIntent().getSerializableExtra("task");
+		} else {
+			task = null;
+		}
+		
+		fragment = TaskFragment.createNewInstance(task);
 
 		fragment.setListener(this);
 		
 		getSupportFragmentManager().beginTransaction().replace(R.id.detail, fragment, "detail").commit();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		fragment.onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override

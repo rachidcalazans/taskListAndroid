@@ -27,6 +27,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class TaskFragment extends SherlockFragment implements OnClickListener {
 
+	private static final String TASK_TAG = "task";
 	private CheckBox checkStatus;
 	private EditText edtDescription;
 	private CheckBox checkAlert;
@@ -49,8 +50,15 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 	
 	public static TaskFragment createNewInstance(Task task) {
 		TaskFragment result = new TaskFragment();
-		result.task = task;
+		Bundle bundle = new Bundle();
+		bundle.putSerializable(TASK_TAG, task);
+		result.setArguments(bundle);
 		return result;
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 	}
 	
 	@Override
@@ -58,7 +66,7 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		super.onActivityCreated(savedInstanceState);
 		setRetainInstance(true);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -80,18 +88,21 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		btSearchAddress.setOnClickListener(this);
 		btCurrentLocation.setOnClickListener(this);
 		
-		if (savedInstanceState != null && savedInstanceState.containsKey("task")) {
-			task = (Task) savedInstanceState.getSerializable("task");
+//		if (savedInstanceState != null && savedInstanceState.containsKey(TASK2)) {
+//			task = (Task) savedInstanceState.getSerializable(TASK2);
+//		} else 
+		if (getArguments().containsKey(TASK_TAG)) {
+			task = (Task) getArguments().getSerializable(TASK_TAG);
 		}
 		
 		buildFormWithTask();
 		
 		if (menu != null) {
-			menu.findItem(br.com.rcalazans.tasklist.R.id.action_deletar).setVisible(task != null);	
+			menu.findItem(br.com.rcalazans.tasklist.R.id.action_deletar)
+			.setVisible(task != null);	
 		}
 		
 		return v;
-
 	}
 	
 	@Override
@@ -101,7 +112,6 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		inflater.inflate(br.com.rcalazans.tasklist.R.menu.detail_task, menu);
 		this.menu = menu;
 		menu.findItem(br.com.rcalazans.tasklist.R.id.action_deletar).setVisible(task != null);
-		
 	}
 	
 	@Override
@@ -224,8 +234,8 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		}
 		
 		buildTaskWithInputsForm();
-		//bundle nao esta funcionando
-		outState.putSerializable("task", task);
+		
+		outState.putSerializable(TASK_TAG, task);
 	}
 	
 	public void setListener(DetailTaskListerner listener) {
@@ -262,6 +272,7 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 			
 			if (location != null)
 			{
+				Log.d("rachid", "location != nulll ");
 				mLongitude = location.getLongitude();
 				mLatitude = location.getLatitude();
 			}
@@ -280,7 +291,9 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 //				String params = task.getAddress().replace(" ", "+");
 				
 				String url = "http://maps.googleapis.com/maps/api/geocode/json?" + params + "&sensor=true"; 
-//				String url = "http://maps.googleapis.com/maps/api/geocode/json?address=rua+jose+carneiro+da+cunha+sarmento,+maceio,+brasil&sensor=true"; 
+//				String url = "http://maps.googleapis.com/maps/api/geocode/json?address=rua+jose+carneiro+da+cunha+sarmento,+maceio,+brasil&sensor=true";
+				
+				Log.d("rachid", "url: "+url);
 				readerAsynTask.execute(url, String.valueOf(task.getGeofenceTaskId()));
 			}
 		} else {

@@ -9,13 +9,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import br.com.rcalazans.tasklist.dao.GeofenceDao;
@@ -25,8 +22,6 @@ import br.com.rcalazans.tasklist.fragment.ListTasksFragment.TaskSelectListener;
 import br.com.rcalazans.tasklist.fragment.TaskFragment;
 import br.com.rcalazans.tasklist.fragment.TaskFragment.DetailTaskListerner;
 import br.com.rcalazans.tasklist.model.GeofenceTask;
-import br.com.rcalazans.tasklist.model.SimpleGeofence;
-import br.com.rcalazans.tasklist.model.SimpleGeofenceStore;
 import br.com.rcalazans.tasklist.model.Task;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -59,18 +54,12 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
     private static final long GEOFENCE_EXPIRATION_TIME     = GEOFENCE_EXPIRATION_IN_HOURS *
             SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND;
     
-    private EditText mLongitude1;
-    
     FrameLayout rootDetalhe = null;
     
-    private SimpleGeofence mUIGeofence1;
-    private SimpleGeofence mUIGeofence2;
-    
-    List<Geofence> mGeofenceList;
-    
-    private SimpleGeofenceStore mGeofenceStorage;
+    private List<Geofence> mGeofenceList;
     private GeofenceDao daoGeofence;
     private GeofenceTask geofenceTask;
+    private TaskDao daoTask;
     
  // Holds the location client
     private LocationClient mLocationClient;
@@ -83,18 +72,8 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
     private boolean mInProgress;
     
     
-    ListTasksFragment listCompleted;
-    ListTasksFragment listUnCompleted;
-    
-    private TaskDao daoTask;
-    
-    private void createTasks() {
-    	Task task  = new Task(1, "Comprar p‹o", "", "rua jose carneiro da cunha", 0, 0);
-    	Task task2 = new Task(1, "Comprar queijo", "", "rua jose carneiro", 0, 1);
-    	
-    	daoTask.inserirAlterar(task);
-    	daoTask.inserirAlterar(task2);
-    }
+    private ListTasksFragment listCompleted;
+    private ListTasksFragment listUnCompleted;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -102,12 +81,20 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		setTheme(R.style.Theme_Sherlock_Light_DarkActionBar);
 		setContentView(R.layout.activity_main);
 		
-		daoGeofence = new GeofenceDao(this);
-        daoTask     = new TaskDao(this);
+		daoGeofence   = new GeofenceDao(this);
+        daoTask       = new TaskDao(this);
+        mGeofenceList = new ArrayList<Geofence>();
 		
-        //createTasks();
+        Log.d("rachid", "tasks size list: "+daoTask.listTasks().size());
+        Log.d("rachid", "geofences size list: "+daoGeofence.listGeofenceTasks().size());
         
-        Log.d("DAO_TASK", "size list: "+daoTask.listTasks().size());
+        List<GeofenceTask> list = daoGeofence.listGeofenceTasks();
+		
+		for (GeofenceTask g : list) {
+			mGeofenceList.add(g.toGeofence());
+		}
+
+    	addGeofences();
         
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		
@@ -148,9 +135,6 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		 // Start with the request flag set to false
         mInProgress = false;
         
-        Log.d("GEOFENCE_DAO", "size list: "+daoGeofence.listGeofenceTasks().size());
-        mGeofenceList = new ArrayList<Geofence>();
-        
 	}
 
 	@Override
@@ -175,7 +159,15 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
 		
-		Log.d("MainActResult", "Entrou onActivityResult");
+		List<GeofenceTask> list = daoGeofence.listGeofenceTasks();
+		
+		for (GeofenceTask g : list) {
+			mGeofenceList.add(g.toGeofence());
+		}
+
+    	addGeofences();
+		
+		Log.d("rachid", "Entrou onActivityResult");
 
 		// Decide what to do based on the original request code
         switch (requestCode) {
@@ -283,7 +275,7 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
              * You can send out a broadcast intent or update the UI.
              * geofences into the Intent's extended data.
              */
-        	Log.d("onAddGeofencesResult", "Success: "+geofenceRequestIds);
+        	Log.d("rachid", "onAddGeofencesResult: Success: "+geofenceRequestIds);
         } else {
         // If adding the geofences failed
             /*
@@ -291,7 +283,7 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
              * You can log the error using Log.e() or update
              * the UI.
              */
-        	Log.d("onAddGeofencesResult", "Error");
+        	Log.d("rachid", "onAddGeofencesResult: Error");
         }
         // Turn off the in progress flag and disconnect the client
         mInProgress = false;
@@ -372,15 +364,6 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
         }
     }
     
-    public void add(View v) {
-    	Log.d("BT ADD PRESSED", "BT PRESSED");
-    	Toast.makeText(this, "Btn Add pressed",
-				Toast.LENGTH_SHORT).show();
-    	createGeofences();
-    	Log.d("ADD", "Antes Add_GEOFENCE");
-    	addGeofences();
-    }
-    
     public void addGeo(View v) {
     	Toast.makeText(this, "Add GEO",
     			Toast.LENGTH_SHORT).show();
@@ -391,29 +374,7 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 			mGeofenceList.add(g.toGeofence());
 		}
 
-		
-    	
     	addGeofences();
-    }
-    
-    public void createGeofences() {
-    	LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		Location location = lm
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		
-		double mLongitude = location.getLongitude();
-		double mLatitude = location.getLatitude();
-		float mRadius = 1;
-		
-		Log.d("Locations LAT", "Longitude " + mLongitude + " - Latitude " + mLatitude);
-		
-		geofenceTask = new GeofenceTask(mLatitude, mLongitude, mRadius, 
-				Geofence.NEVER_EXPIRE, 
-				Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
-		
-		daoGeofence.inserirAlterar(geofenceTask);
-
-		mGeofenceList.add(geofenceTask.toGeofence());
     }
     
     /**
