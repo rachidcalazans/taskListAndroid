@@ -4,6 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
+    <ImageView
+        android:id="@+id/imgStatus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_launcher" />
+    
     <TextView
         android:id="@+id/txtTaskDescription"
         android:layout_width="match_parent"

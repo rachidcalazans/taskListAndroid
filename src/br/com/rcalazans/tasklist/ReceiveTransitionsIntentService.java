@@ -3,32 +3,29 @@ package br.com.rcalazans.tasklist;
 import java.util.List;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
+import br.com.rcalazans.tasklist.dao.TaskDao;
+import br.com.rcalazans.tasklist.model.Task;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 
 public class ReceiveTransitionsIntentService extends IntentService {
 
+	private TaskDao daoTask;
+	
 	public ReceiveTransitionsIntentService() {
 		super("ReceiveTransitionsIntentService");
-//		Toast.makeText(this, "RecTransIntServ Intiated",
-//				Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
-	public IBinder onBind(Intent intent) {
-		Log.d("rachid", "Receive_Service_OnBIND");
-		return null;
-	}
-	
-	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.d("rachid", "Receive_Service_OnStartCommand");
-		
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -41,17 +38,11 @@ public class ReceiveTransitionsIntentService extends IntentService {
 			// Log the error
 			Log.e("rachid",
 					"ReceiveTransitionsIntentService: Location Services error: " + Integer.toString(errorCode));
-			/*
-			 * You can also send the error code to an Activity or Fragment with
-			 * a broadcast Intent
-			 */
-			/*
-			 * If there's no error, get the transition type and the IDs of the
-			 * geofence or geofences that triggered the transition
-			 */
 		} else {
 			// Get the type of transition (entry or exit)
 			int transitionType = LocationClient.getGeofenceTransition(intent);
+			
+			daoTask     = new TaskDao(this);
 			
 			Log.e("rachid",
 					"onHandleIntent: transitionType: " + transitionType);
@@ -67,19 +58,50 @@ public class ReceiveTransitionsIntentService extends IntentService {
 				for (int i = 0; i < triggerIds.length; i++) {
 					// Store the Id of each geofence
 					triggerIds[i] = triggerList.get(i).getRequestId();
-					Log.e("rachid",
-							"triggerIds: index: " + i + ": " + triggerList.get(i).getRequestId());
+					
+					long geofenceTaskId = Long.parseLong(triggerList.get(i).getRequestId());
+					
+					buildNotificationTaskGeofence(geofenceTaskId);
+					
+					Log.e("rachid", "triggerIds: index: " + i + ": " + triggerList.get(i).getRequestId());
+					
 				}
 				
-				/*
-				 * At this point, you can store the IDs for further use display
-				 * them, or display the details associated with them.
-				 */
 			} else { // An invalid transition was reported
 				Log.e("ReceiveTransitionsIntentService",
 						"Geofence transition error: " + transitionType);
 			}
 		}
+	}
+
+	private void buildNotificationTaskGeofence(long geofenceTaskId) {
+		Intent it = new Intent(this, TaskActivity.class);
+		Task task = daoTask.taskByGeofenceTaskId(geofenceTaskId);
+		it.putExtra("task", task);
+		it.putExtra("task_come_notification", true);
+		
+		PendingIntent pit = PendingIntent.getActivity(this, 0, it, 0);
+		
+		int found = R.string.found;
+		int showYourTask = R.string.show_your_task;
+		
+		String ticker 		= "TaskList: " + task.getDescription() + " " + getString(found);
+		String contentTitle = "TaskList: " + task.getDescription() + " " + getString(found);
+		String contentText  = getString(showYourTask);
+		
+		Notification notificacao = new NotificationCompat.Builder(this)
+				.setTicker(ticker)
+				.setContentTitle(contentTitle)
+				.setContentText(contentText)
+				.setSmallIcon(R.drawable.tasklist)
+				.setWhen(System.currentTimeMillis())
+				.setContentIntent(pit)
+				.setAutoCancel(true)
+				.getNotification();
+				
+		
+		NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+		manager.notify((int) geofenceTaskId, notificacao);
 	}
 
 }

@@ -1067,6 +1067,7 @@ containing a value of this type.
         public static final int common_signin_btn_text_pressed_dark=0x7f020086;
         public static final int common_signin_btn_text_pressed_light=0x7f020087;
         public static final int ic_launcher=0x7f020088;
+        public static final int tasklist=0x7f020089;
     }
     public static final class id {
         public static final int abs__action_bar=0x7f040024;
@@ -1108,11 +1109,11 @@ containing a value of this type.
         public static final int abs__textButton=0x7f040017;
         public static final int abs__title=0x7f04001f;
         public static final int abs__up=0x7f04000b;
-        public static final int action_cancelar=0x7f040045;
-        public static final int action_deletar=0x7f040044;
-        public static final int action_novo=0x7f040047;
-        public static final int action_salvar=0x7f040043;
-        public static final int action_settings=0x7f040046;
+        public static final int action_cancelar=0x7f040046;
+        public static final int action_deletar=0x7f040045;
+        public static final int action_novo=0x7f040048;
+        public static final int action_salvar=0x7f040044;
+        public static final int action_settings=0x7f040047;
         public static final int btCurrentLocation=0x7f04003f;
         public static final int btSearchAddress=0x7f04003e;
         public static final int checkAlert=0x7f04003b;
@@ -1125,6 +1126,7 @@ containing a value of this type.
         public static final int edtNotes=0x7f040041;
         public static final int homeAsUp=0x7f040006;
         public static final int hybrid=0x7f040013;
+        public static final int imgStatus=0x7f040042;
         public static final int listMode=0x7f040002;
         public static final int lista=0x7f040037;
         public static final int none=0x7f040010;
@@ -1138,7 +1140,7 @@ containing a value of this type.
         public static final int textView1=0x7f040039;
         public static final int textView3=0x7f04003c;
         public static final int textView4=0x7f040040;
-        public static final int txtTaskDescription=0x7f040042;
+        public static final int txtTaskDescription=0x7f040043;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }
@@ -1314,10 +1316,12 @@ containing a value of this type.
         public static final int completed=0x7f090030;
         public static final int description=0x7f09002b;
         public static final int description_require=0x7f090031;
+        public static final int found=0x7f090038;
         public static final int internet_failure=0x7f090033;
         public static final int notes=0x7f09002c;
         public static final int searhing_address=0x7f090036;
         public static final int searhing_current_location=0x7f090037;
+        public static final int show_your_task=0x7f090039;
         public static final int status=0x7f09002a;
         public static final int uncompleted=0x7f09002f;
     }

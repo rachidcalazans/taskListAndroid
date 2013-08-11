@@ -70,4 +70,39 @@ public class GeofenceDao {
 
 		return geofenceTasks;
 	}
+	
+	public List<GeofenceTask> listGeofenceTasksWithTasksIds(List<Long> geofencesIds) {
+		ArrayList<GeofenceTask> geofenceTasks = new ArrayList<GeofenceTask>();
+		String ids = new String();
+		
+		if (geofencesIds != null && !geofencesIds.isEmpty()) {
+			for (Long id : geofencesIds) {
+				ids += id.toString() + ",";
+			}
+		}
+		
+		ids += "0";
+		
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor cursor = db.rawQuery("select * from geofence_tasks where _id in (" + ids + ")", null);
+		
+		while (cursor.moveToNext()) {
+			
+			long   id 			      = cursor.getLong(cursor.getColumnIndex("_id"));
+			double latitude			  = cursor.getDouble(cursor.getColumnIndex("latitude"));
+			double longitude		  = cursor.getDouble(cursor.getColumnIndex("longitude"));
+			float  radius  	    	  = cursor.getFloat(cursor.getColumnIndex("radius"));
+			long   expirationDuration = cursor.getLong(cursor.getColumnIndex("expiration_duration"));
+			int    transitionType     = cursor.getInt(cursor.getColumnIndex("transition_type"));
+			
+			GeofenceTask geofenceTask = new GeofenceTask(id, latitude, longitude, radius, expirationDuration, transitionType);
+			
+			geofenceTasks.add(geofenceTask);
+		}
+		
+		cursor.close();
+		db.close();
+		
+		return geofenceTasks;
+	}
 }

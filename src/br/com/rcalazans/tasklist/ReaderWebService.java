@@ -91,22 +91,6 @@ public abstract class ReaderWebService  extends AsyncTask<String, Void, Geofence
 	            s += inputLine;
 	        in.close();
 	        return s;
-	        
-//			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//			conn.setRequestMethod("GET");
-//			conn.setDoInput(true);
-//			conn.setConnectTimeout(20000);
-//			conn.connect();
-//
-//			InputStream is = conn.getInputStream();
-//			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//			byte[] buffer = new byte[1024];
-//			int read;
-//			while ((read = is.read(buffer)) > 0) {
-//				baos.write(buffer);
-//			}
-//			return new String(baos.toByteArray());
-
 	}
 
 	@Override

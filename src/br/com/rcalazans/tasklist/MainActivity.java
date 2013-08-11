@@ -8,13 +8,12 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 import br.com.rcalazans.tasklist.dao.GeofenceDao;
 import br.com.rcalazans.tasklist.dao.TaskDao;
 import br.com.rcalazans.tasklist.fragment.ListTasksFragment;
@@ -36,32 +35,22 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListener;
+import com.google.android.gms.location.LocationClient.OnRemoveGeofencesResultListener;
 import com.google.android.gms.location.LocationStatusCodes;
 
 public class MainActivity extends SherlockFragmentActivity implements ConnectionCallbacks, 
 		OnConnectionFailedListener, OnAddGeofencesResultListener, TaskSelectListener, TabListener,
-		DetailTaskListerner{
+		DetailTaskListerner, OnRemoveGeofencesResultListener{
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	
-    /*
-     * Use to set an expiration time for a geofence. After this amount
-     * of time Location Services will stop tracking the geofence.
-     */
-    private static final long SECONDS_PER_HOUR 			   = 60;
-    private static final long MILLISECONDS_PER_SECOND      = 1000;
-    private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
-    private static final long GEOFENCE_EXPIRATION_TIME     = GEOFENCE_EXPIRATION_IN_HOURS *
-            SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND;
     
-    FrameLayout rootDetalhe = null;
+    private FrameLayout rootDetalhe = null;
     
     private List<Geofence> mGeofenceList;
     private GeofenceDao daoGeofence;
-    private GeofenceTask geofenceTask;
     private TaskDao daoTask;
     
- // Holds the location client
+    // Holds the location client
     private LocationClient mLocationClient;
     // Stores the PendingIntent used to request geofence monitoring
     private PendingIntent mGeofenceRequestIntent;
@@ -71,9 +60,10 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
     // Flag that indicates if a request is underway.
     private boolean mInProgress;
     
-    
     private ListTasksFragment listCompleted;
     private ListTasksFragment listUnCompleted;
+    
+    ResponseReceiver receiver;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,17 +75,14 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
         daoTask       = new TaskDao(this);
         mGeofenceList = new ArrayList<Geofence>();
 		
-        Log.d("rachid", "tasks size list: "+daoTask.listTasks().size());
-        Log.d("rachid", "geofences size list: "+daoGeofence.listGeofenceTasks().size());
+        IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
+		filter.addCategory(Intent.CATEGORY_DEFAULT);
+		receiver = new ResponseReceiver();
+		registerReceiver(receiver, filter);
         
-        List<GeofenceTask> list = daoGeofence.listGeofenceTasks();
-		
-		for (GeofenceTask g : list) {
-			mGeofenceList.add(g.toGeofence());
-		}
-
+        seLlistGeofencesTasks();
     	addGeofences();
-        
+    	
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		
 		listUnCompleted = (ListTasksFragment) getSupportFragmentManager().findFragmentByTag("listUnCompleted");
@@ -156,15 +143,16 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	}
 	
 	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+//		unregisterReceiver(receiver);
+	}
+	
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
 		
-		List<GeofenceTask> list = daoGeofence.listGeofenceTasks();
-		
-		for (GeofenceTask g : list) {
-			mGeofenceList.add(g.toGeofence());
-		}
-
+		seLlistGeofencesTasks();
     	addGeofences();
 		
 		Log.d("rachid", "Entrou onActivityResult");
@@ -219,14 +207,17 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 	public void onConnected(Bundle connectionHint) {
 		switch (mRequestType) {
         case ADD :
-            // Get the PendingIntent for the request
-        	mGeofenceRequestIntent =
-                    getTransitionPendingIntent();
-            // Send a request to add the current geofences
-            mLocationClient.addGeofences(mGeofenceList, mGeofenceRequestIntent, this);
+        	Log.e("rachid", "onConnected: ADD");
+        	if (mGeofenceList != null && !mGeofenceList.isEmpty()) {
+        		// Get the PendingIntent for the request
+            	mGeofenceRequestIntent =
+                        getTransitionPendingIntent();
+                // Send a request to add the current geofences
+                mLocationClient.addGeofences(mGeofenceList, mGeofenceRequestIntent, this);	
+        	}
             break;
         case REMOVE_INTENT :
-//            mLocationClient.removeGeofences(mGeofenceRequestIntent, (OnRemoveGeofencesResultListener) this);
+            mLocationClient.removeGeofences(mGeofenceRequestIntent, this);
             break;
 		}
 		
@@ -289,12 +280,34 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
         mInProgress = false;
         mLocationClient.disconnect();		
 	}
+
+	private void seLlistGeofencesTasks() {
+		Log.d("rachid", "seLlistGeofencesTasks");
+		List<Long> geofencesIds = new ArrayList<Long>();
+    	
+    	for (Task task : daoTask.listTasksByStatus(0)) {
+    		if (task.getGeofenceTaskId() != 0) {
+    			geofencesIds.add(task.getGeofenceTaskId());
+    		}
+		}
+    	
+    	List<GeofenceTask> list = daoGeofence.listGeofenceTasksWithTasksIds(geofencesIds);
+		
+    	Log.d("rachid", "seLlistGeofencesTasks lsit.size: "+list.size());
+    	
+    	if (list != null && !list.isEmpty()) {
+    		for (GeofenceTask g : list) {
+    			mGeofenceList.add(g.toGeofence());
+    		}
+    	}
+	}
 	
 	/**
      * Start a request for geofence monitoring by calling
      * LocationClient.connect().
      */
     public void addGeofences() {
+    	
         // Start a request to add geofences
         mRequestType = REQUEST_TYPE.ADD;
         /*
@@ -312,13 +325,16 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
          * as the listener for both parameters
          */
         mLocationClient = new LocationClient(this, this, this);
+        
         // If a request is not already underway
         if (!mInProgress) {
+        	Log.e("rachid","!mInProgress");
             // Indicate that a request is underway
             mInProgress = true;
             // Request a connection from the client to Location Services
             mLocationClient.connect();
         } else {
+        	Log.e("rachid","mInProgress");
             /*
              * A request is already underway. You can handle
              * this situation by disconnecting the client,
@@ -364,19 +380,6 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
         }
     }
     
-    public void addGeo(View v) {
-    	Toast.makeText(this, "Add GEO",
-    			Toast.LENGTH_SHORT).show();
-    	
-		List<GeofenceTask> list = daoGeofence.listGeofenceTasks();
-		
-		for (GeofenceTask g : list) {
-			mGeofenceList.add(g.toGeofence());
-		}
-
-    	addGeofences();
-    }
-    
     /**
      * Checa o status do GooglePlayService
      * @return true. Caso esteja dispon’vel
@@ -400,16 +403,6 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
         }
     }
     
-    public class ResponseReceiver extends BroadcastReceiver {
-		public static final String ACTION_RESP = "A";
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Toast.makeText(context, "COCK SLAM - received response",
-					Toast.LENGTH_SHORT).show();
-		}
-	}
-
     // Click no item da lista
 	@Override
 	public void onClick(Task task) {
@@ -452,15 +445,12 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 
 	@Override
 	public void onCancelClick() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onSaveClick() {
 		listCompleted.refreshListTasks(1);
 		listUnCompleted.refreshListTasks(0);
-		
 	}
 
 	@Override
@@ -469,4 +459,55 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		listUnCompleted.refreshListTasks(0);
 	}
 
+	@Override
+	public void onRemoveGeofencesByPendingIntentResult(int statusCode,
+			PendingIntent arg1) {
+		// If removing the geofences was successful
+        if (statusCode == LocationStatusCodes.SUCCESS) {
+            /*
+             * Handle successful removal of geofences here.
+             * You can send out a broadcast intent or update the UI.
+             * geofences into the Intent's extended data.
+             */
+        } else {
+        // If adding the geocodes failed
+            /*
+             * Report errors here.
+             * You can log the error using Log.e() or update
+             * the UI.
+             */
+        }
+        /*
+         * Disconnect the location client regardless of the
+         * request status, and indicate that a request is no
+         * longer in progress
+         */
+        mInProgress = false;
+        mLocationClient.disconnect();
+	}
+
+	@Override
+	public void onRemoveGeofencesByRequestIdsResult(int statusCode, String[] arg1) {
+		mInProgress = false;
+        mLocationClient.disconnect();
+	}
+
+	public class ResponseReceiver extends BroadcastReceiver {
+		public static final String ACTION_RESP 			   = "notification_clicked";
+		public static final String ACTION_CLICK_CHECK_ITEM = "check_item_clicked";
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			
+			if (ACTION_RESP.equals(intent.getAction())) {
+				
+				listCompleted.refreshListTasks(1);
+				listUnCompleted.refreshListTasks(0);
+				
+			}
+			
+			
+		}
+	}
+	
 }

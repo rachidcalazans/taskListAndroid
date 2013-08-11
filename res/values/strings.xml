@@ -23,5 +23,7 @@
     <string name="address_found">Success address found</string>
     <string name="searhing_address">Searching address...</string>
     <string name="searhing_current_location">Searching current location...</string>
+    <string name="found">Found</string>
+    <string name="show_your_task">Click here to view your task</string>
 
 </resources>

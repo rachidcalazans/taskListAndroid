@@ -47,6 +47,31 @@ public class TaskDao {
 		db.close();
 	}
 
+	public Task taskByGeofenceTaskId(long geofenceTaskId) {
+		Task task = null;
+		
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor cursor = db.rawQuery("select * from tasks where geofence_task_id = " + geofenceTaskId, null);
+
+		while (cursor.moveToNext()) {
+			
+			long   id 			  = cursor.getLong(cursor.getColumnIndex("_id"));
+			long   geofenceId     = cursor.getLong(cursor.getColumnIndex("geofence_task_id"));
+			String description    = cursor.getString(cursor.getColumnIndex("description"));
+			String notes		  = cursor.getString(cursor.getColumnIndex("notes"));
+			String address		  = cursor.getString(cursor.getColumnIndex("address"));
+			int    alert 		  = cursor.getInt(cursor.getColumnIndex("alert"));
+			int    status 		  = cursor.getInt(cursor.getColumnIndex("status"));
+			
+			task = new Task(id, geofenceId, description, notes, address, alert, status);
+
+		}
+
+		cursor.close();
+		db.close();
+		return task;
+	}
+	
 	public List<Task> listTasksByStatus(int taskStatus) {
 		ArrayList<Task> tasks = new ArrayList<Task>();
 

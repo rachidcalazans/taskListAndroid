@@ -47,6 +47,7 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 	private DetailTaskListerner listener;
 	
 	private ReaderAsyncTask readerAsynTask;
+	private LocationManager lm;
 	
 	public static TaskFragment createNewInstance(Task task) {
 		TaskFragment result = new TaskFragment();
@@ -88,9 +89,6 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		btSearchAddress.setOnClickListener(this);
 		btCurrentLocation.setOnClickListener(this);
 		
-//		if (savedInstanceState != null && savedInstanceState.containsKey(TASK2)) {
-//			task = (Task) savedInstanceState.getSerializable(TASK2);
-//		} else 
 		if (getArguments().containsKey(TASK_TAG)) {
 			task = (Task) getArguments().getSerializable(TASK_TAG);
 		}
@@ -253,7 +251,7 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		
 		if (bt.getId() == R.id.btSearchAddress) {
 			int searhingAddress = R.string.searhing_address;
-			Toast.makeText(getActivity(), searhingAddress, Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), searhingAddress, Toast.LENGTH_LONG).show();
 			
 			String addressFormated = task.addressFormated();
 			params = "address=" + addressFormated.replace(" ", "+");
@@ -262,9 +260,12 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		
 		if (bt.getId() == R.id.btCurrentLocation) {
 			int searhingCurrentLocation= R.string.searhing_current_location;
-			Toast.makeText(getActivity(), searhingCurrentLocation, Toast.LENGTH_SHORT).show();
+			Toast.makeText(getActivity(), searhingCurrentLocation, Toast.LENGTH_LONG).show();
 			
-			LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+			if (lm == null) {
+				lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+			}
+			
 			Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			
 			double mLongitude = 0.0;
@@ -284,14 +285,8 @@ public class TaskFragment extends SherlockFragment implements OnClickListener {
 		if (info != null && info.isConnected()) {
 			if (readerAsynTask == null) {
 				readerAsynTask = new ReaderAsyncTask();
-//				task.setAddress("rua josé carneiro da cunha sarmento, maceio, brasil");
-				
-//				String addressFormated = task.addressFormated();
-//				String params = addressFormated.replace(" ", "+");
-//				String params = task.getAddress().replace(" ", "+");
 				
 				String url = "http://maps.googleapis.com/maps/api/geocode/json?" + params + "&sensor=true"; 
-//				String url = "http://maps.googleapis.com/maps/api/geocode/json?address=rua+jose+carneiro+da+cunha+sarmento,+maceio,+brasil&sensor=true";
 				
 				Log.d("rachid", "url: "+url);
 				readerAsynTask.execute(url, String.valueOf(task.getGeofenceTaskId()));

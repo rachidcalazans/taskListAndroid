@@ -1,7 +1,9 @@
 package br.com.rcalazans.tasklist;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import br.com.rcalazans.tasklist.MainActivity.ResponseReceiver;
 import br.com.rcalazans.tasklist.fragment.TaskFragment;
 import br.com.rcalazans.tasklist.fragment.TaskFragment.DetailTaskListerner;
 import br.com.rcalazans.tasklist.model.Task;
@@ -12,6 +14,7 @@ public class TaskActivity extends SherlockFragmentActivity implements DetailTask
 	
 	private TaskFragment fragment;
 	private Task task; 
+	private boolean taskComeNotification = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +27,10 @@ public class TaskActivity extends SherlockFragmentActivity implements DetailTask
 			task = (Task) getIntent().getSerializableExtra("task");
 		} else {
 			task = null;
+		}
+		
+		if (getIntent().hasExtra("task_come_notification")) {
+			taskComeNotification = getIntent().getBooleanExtra("task_come_notification", false);
 		}
 		
 		fragment = TaskFragment.createNewInstance(task);
@@ -58,4 +65,16 @@ public class TaskActivity extends SherlockFragmentActivity implements DetailTask
 		finish();		
 	}
 
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		if (taskComeNotification) {
+			Intent broadcastIntent = new Intent();
+	    	broadcastIntent.setAction(ResponseReceiver.ACTION_RESP);
+	    	broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+	    	sendBroadcast(broadcastIntent);
+		}
+	}
+	
 }

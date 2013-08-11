@@ -23,5 +23,7 @@
     <string name="address_found">Endereço encontrado com sucesso</string>
     <string name="searhing_address">Procurando endereço...</string>
     <string name="searhing_current_location">Procurando localização atual...</string>
+    <string name="found">Localizada</string>
+    <string name="show_your_task">Clique para visualizar sua task</string>
 
 </resources>
