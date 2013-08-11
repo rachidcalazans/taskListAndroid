@@ -285,7 +285,7 @@ public class MainActivity extends SherlockFragmentActivity implements Connection
 		Log.d("rachid", "seLlistGeofencesTasks");
 		List<Long> geofencesIds = new ArrayList<Long>();
     	
-    	for (Task task : daoTask.listTasksByStatus(0)) {
+    	for (Task task : daoTask.listTasksByStatusByAlert(0, 1)) {
     		if (task.getGeofenceTaskId() != 0) {
     			geofencesIds.add(task.getGeofenceTaskId());
     		}
